@@ -102,6 +102,8 @@ Testing should only take place in a clear, safe flying area with propeller guard
 ## Demo of hand tracking
 
 
-https://github.com/user-attachments/assets/cf323410-2a19-4499-bfdf-f8c7cdb29117
+https://github.com/user-attachments/assets/d05adb9c-1b01-4fe1-9f7b-dd9586b74169
+
+
 
 
