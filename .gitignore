@@ -1,0 +1,14 @@
+# Python environment and generated files
+.venv/
+__pycache__/
+*.pyc
+
+# PyCharm and macOS files
+.idea/
+.DS_Store
+
+# Local settings
+.env
+
+# Downloaded MediaPipe model
+gesture_recognizer.task
