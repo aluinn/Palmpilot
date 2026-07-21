@@ -20,6 +20,9 @@ The project receives the Tello's live camera stream, detects a hand using **Medi
   - Victory sign
   - Pointing up
 - Cleans up the video stream when the program closes
+- Preview-only gesture controller
+- Gesture hold confirmation to prevent accidental commands
+- Disarmed, armed and simulated flying states
 
 ## Technology
 
@@ -35,6 +38,7 @@ The project receives the Tello's live camera stream, detects a hand using **Medi
 - `camera_test.py` — displays the live camera stream
 - `gesture_test.py` — detects hands and recognises gestures
 - `requirements.txt` — lists the Python dependencies
+- `controller_preview.py` — safely previews gesture-controlled flight states without starting the motors
 
 ## Installation
 
@@ -87,8 +91,8 @@ Testing should only take place in a clear, safe flying area with propeller guard
 - [x] Display the camera stream
 - [x] Detect hand landmarks
 - [x] Recognise hand gestures
-- [ ] Add stable gesture confirmation
-- [ ] Add a preview-only control mode
+- [x] Add stable gesture confirmation
+- [x] Add a preview-only control mode
 - [ ] Add arming and disarming
 - [ ] Add safe takeoff and landing controls
 - [ ] Add hand-position movement
