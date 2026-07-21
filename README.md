@@ -102,3 +102,12 @@ Testing should only take place in a clear, safe flying area with propeller guard
 ## Status
 
 **Work in progress:** Connection, camera streaming and hand-gesture recognition are working.
+
+## Demo of hand tracking
+
+
+https://github.com/user-attachments/assets/d05adb9c-1b01-4fe1-9f7b-dd9586b74169
+
+
+
+
