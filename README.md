@@ -25,6 +25,16 @@ The project receives the Tello's live camera stream, detects a hand using **Medi
 - Disarmed, armed and simulated flying states
 - Battery-checked takeoff, hover and automatic landing test
 - Safety landing if the flight program is interrupted
+- Gesture-controlled arming, takeoff and landing
+- Automatic landing when the hand disappears
+- Automatic 15-second flight limit
+- Keyboard-controlled safety landing
+- Open-palm position tracking
+- Preview-only left, right, up, down and hover controls
+- Direction confirmation bar to prevent accidental movement
+- Bounded gesture-controlled left and right movement
+- Centre-palm movement enablement
+- Automatic landing after one movement
 
 ## Technology
 
@@ -42,6 +52,9 @@ The project receives the Tello's live camera stream, detects a hand using **Medi
 - `requirements.txt` — lists the Python dependencies
 - `controller_preview.py` — safely previews gesture-controlled flight states without starting the motors
 - `flight_test.py` — performs a confirmed three-second takeoff, hover and landing test
+- `gesture_flight.py` — performs safety-confirmed gesture takeoff, hover and landing
+- `movement_preview.py` — previews movement directions using the position of an open palm
+- `gesture_movement_test.py` — performs one confirmed 20 cm gesture-controlled movement before landing
 
 ## Installation
 
@@ -100,7 +113,8 @@ Testing should only take place in a clear, safe flying area with propeller guard
 - [x] Complete a controlled takeoff-and-landing test
 - [x] Connect confirmed gestures to takeoff and landing
 - [x] Add safe takeoff and landing controls
-- [ ] Add hand-position movement
+- [x] Add hand-position movement
+- [x] Enable limited real movement 
 - [ ] Add an emergency keyboard landing command
 - [ ] Record a demonstration video
 
