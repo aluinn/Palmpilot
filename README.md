@@ -17,7 +17,7 @@ PalmPilot is a Python computer-vision project that controls a Ryze Tello drone u
 | Input | Action |
 |---|---|
 | Open palm ✋ | Control left, right, up and down |
-| Victory sign ✌️ | Move forward |
+| Victory sign ✌️ or Pointing Up ☝️ | Move forward |
 | Closed fist ✊ | Move backward |
 | Open palm in centre | Hover/reset depth movement |
 | `L` or `Q` | Land |
@@ -75,8 +75,8 @@ python palmpilot.py
 
 ## Safety
 
-- Takeoff requires at least 60% battery.
-- The drone lands when the battery reaches 50%.
+- There is no minimum battery requirement for takeoff.
+- The drone lands when the battery reaches 20%.
 - Losing the hand causes immediate hovering.
 - The drone lands after 30 seconds without detecting a hand.
 - Forward and backward movement uses a reduced speed.
@@ -111,7 +111,6 @@ Built using [DJITelloPy](https://github.com/damiafuentes/DJITelloPy), [MediaPipe
 
 
 https://github.com/user-attachments/assets/d05adb9c-1b01-4fe1-9f7b-dd9586b74169
-
 
 
 

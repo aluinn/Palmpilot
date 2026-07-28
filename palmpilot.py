@@ -10,18 +10,16 @@ from djitellopy import Tello
 
 MODEL_PATH = Path(__file__).with_name("gesture_recognizer.task")
 
-MIN_TAKEOFF_BATTERY = 60
-LAND_AT_BATTERY = 50
+LAND_AT_BATTERY = 20
 NO_HAND_LAND_SECONDS = 30
 
 MAX_LEFT_RIGHT_SPEED = 24
 MAX_UP_DOWN_SPEED = 20
 MIN_MOVEMENT_SPEED = 10
 
-# Keep forward movement slow because the drone may be facing you.
-DEPTH_SPEED = 12
+DEPTH_SPEED = 14
 DEPTH_MAX_SECONDS = 2.0
-DEPTH_GESTURE_HOLD_SECONDS = 0.35
+DEPTH_GESTURE_HOLD_SECONDS = 0.25
 DEPTH_RESET_HOLD_SECONDS = 0.5
 
 DEAD_ZONE_X = 0.09
@@ -30,7 +28,7 @@ DEAD_ZONE_Y = 0.10
 SMOOTHING = 0.28
 RC_INTERVAL = 0.05
 ACTIVATION_HOLD_SECONDS = 1.0
-GESTURE_CONFIDENCE = 0.45
+GESTURE_CONFIDENCE = 0.35
 
 
 HAND_CONNECTIONS = [
@@ -44,12 +42,13 @@ HAND_CONNECTIONS = [
 
 
 def speed_from_error(error, dead_zone, maximum_speed):
-    """Convert the palm's distance from the centre into a speed."""
+    """Convert palm distance from the centre into speed."""
 
     if abs(error) <= dead_zone:
         return 0
 
     usable_area = 0.5 - dead_zone
+
     strength = min(
         1.0,
         (abs(error) - dead_zone) / usable_area,
@@ -91,7 +90,49 @@ def hand_is_open(landmarks, gesture_name, gesture_score):
     return model_says_open or geometry_says_open
 
 
+def forward_gesture_detected(
+    landmarks,
+    gesture_name,
+    gesture_score,
+):
+    """Detect Victory or Pointing Up as the forward command."""
+
+    model_detected_forward = (
+        gesture_score >= GESTURE_CONFIDENCE
+        and gesture_name in ("Victory", "Pointing_Up")
+    )
+
+    index_up = landmarks[8].y < landmarks[6].y - 0.01
+    middle_up = landmarks[12].y < landmarks[10].y - 0.01
+
+    middle_folded = landmarks[12].y > landmarks[10].y
+    ring_folded = landmarks[16].y > landmarks[14].y
+    little_folded = landmarks[20].y > landmarks[18].y
+
+    victory_shape = (
+        index_up
+        and middle_up
+        and ring_folded
+        and little_folded
+    )
+
+    pointing_shape = (
+        index_up
+        and middle_folded
+        and ring_folded
+        and little_folded
+    )
+
+    return (
+        model_detected_forward
+        or victory_shape
+        or pointing_shape
+    )
+
+
 def draw_hand(frame, landmarks):
+    """Draw hand landmarks and connections."""
+
     height, width = frame.shape[:2]
 
     for start, end in HAND_CONNECTIONS:
@@ -167,8 +208,9 @@ def main():
     last_hand_seen = None
     last_rc_sent = 0
     last_battery_check = 0
-    battery = 0
     previous_timestamp = -1
+
+    battery = 0
 
     # Forward/backward gesture state.
     depth_candidate = None
@@ -184,21 +226,21 @@ def main():
         battery = tello.get_battery()
         print(f"Battery: {battery}%")
 
-        if battery < MIN_TAKEOFF_BATTERY:
+        if battery <= LAND_AT_BATTERY:
             print(
-                f"Battery must be at least "
-                f"{MIN_TAKEOFF_BATTERY}% before takeoff."
+                f"Warning: battery is already at or below "
+                f"{LAND_AT_BATTERY}%."
             )
-            return
+            print("The drone will land shortly after takeoff.")
 
         print()
         print("Controls:")
         print("Open palm = left/right/up/down")
         print("Victory sign = forward")
+        print("Pointing Up = forward")
         print("Closed fist = backward")
         print("L or Q = land")
         print()
-        print("Stand well behind the drone before takeoff.")
 
         confirmation = input(
             "Clear the area, attach propeller guards, "
@@ -237,7 +279,7 @@ def main():
                 (960, 720),
             )
 
-            # Mirror the image so left/right feels natural.
+            # Mirror the camera display.
             rgb_frame = cv2.flip(rgb_frame, 1)
 
             timestamp = max(
@@ -316,11 +358,18 @@ def main():
 
                 recognised_depth_gesture = None
 
-                if gesture_score >= GESTURE_CONFIDENCE:
-                    if gesture_name == "Victory":
-                        recognised_depth_gesture = "FORWARD"
-                    elif gesture_name == "Closed_Fist":
-                        recognised_depth_gesture = "BACKWARD"
+                if forward_gesture_detected(
+                    landmarks,
+                    gesture_name,
+                    gesture_score,
+                ):
+                    recognised_depth_gesture = "FORWARD"
+
+                elif (
+                    gesture_score >= GESTURE_CONFIDENCE
+                    and gesture_name == "Closed_Fist"
+                ):
+                    recognised_depth_gesture = "BACKWARD"
 
                 palm_x = landmarks[9].x
                 palm_y = landmarks[9].y
@@ -338,7 +387,6 @@ def main():
                     -1,
                 )
 
-                # Smooth the palm position.
                 if open_palm:
                     if (
                         smoothed_x is None
@@ -359,7 +407,7 @@ def main():
 
                     last_open_palm_time = now
 
-                # First activation requires an open palm in the centre.
+                # Activate tracking with an open palm in the centre.
                 if not tracking_active:
                     status = "HOLD OPEN PALM IN YELLOW BOX"
 
@@ -389,9 +437,8 @@ def main():
                     else:
                         activation_started = None
 
+                # Require an open-palm reset after depth movement.
                 elif depth_locked:
-                    # After two seconds of forward/backward movement,
-                    # an open palm must be shown to reset it.
                     status = "SHOW OPEN PALM TO RESET DEPTH"
 
                     if open_palm:
@@ -414,8 +461,9 @@ def main():
                     else:
                         depth_reset_started = None
 
+                # Victory or Pointing Up moves forward.
+                # Closed fist moves backward.
                 elif recognised_depth_gesture is not None:
-                    # A Victory sign or fist controls depth.
                     if depth_candidate != recognised_depth_gesture:
                         depth_candidate = recognised_depth_gesture
                         depth_candidate_started = now
@@ -464,13 +512,15 @@ def main():
                             forward_backward_speed = -DEPTH_SPEED
                             status = "MOVING BACKWARD"
 
+                # Open palm controls left/right/up/down.
                 elif open_palm:
-                    # Open palm controls left/right/up/down.
                     depth_candidate = None
                     depth_candidate_started = None
                     depth_motion_started = None
 
-                    horizontal_error = smoothed_x - 0.5
+                    # Reversed so your hand and drone move
+                    # in the same perceived direction.
+                    horizontal_error = 0.5 - smoothed_x
                     vertical_error = 0.5 - smoothed_y
 
                     left_right_speed = speed_from_error(
@@ -516,6 +566,7 @@ def main():
                 depth_reset_started = None
 
                 seconds_missing = now - last_hand_seen
+
                 seconds_remaining = max(
                     0,
                     NO_HAND_LAND_SECONDS - seconds_missing,
@@ -533,7 +584,7 @@ def main():
                     )
                     break
 
-            # Send all four continuous control channels.
+            # Send continuous control commands.
             if now - last_rc_sent >= RC_INTERVAL:
                 tello.send_rc_control(
                     left_right_speed,
@@ -543,6 +594,7 @@ def main():
                 )
                 last_rc_sent = now
 
+            # Check the battery every five seconds.
             if now - last_battery_check >= 5:
                 battery = tello.get_battery()
                 last_battery_check = now
@@ -613,7 +665,6 @@ def main():
                 2,
             )
 
-            # Activation, depth and reset progress bars.
             current_progress = max(
                 activation_progress,
                 depth_progress,
@@ -704,4 +755,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
