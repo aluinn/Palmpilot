@@ -1,70 +1,60 @@
 # PalmPilot
 
-**PalmPilot** is a Python computer-vision project that uses hand gestures to interact with a **Ryze Tello drone**.
+PalmPilot is a Python computer-vision project that controls a Ryze Tello drone using hand gestures detected through its live camera.
 
-The project receives the Tello's live camera stream, detects a hand using **MediaPipe**, draws its landmarks and identifies gestures in real time.
+## Features
 
-> **Note:** Flight control is not enabled yet. The current version focuses on safe connection, video streaming and gesture recognition.
+- Live Tello camera feed
+- MediaPipe hand and gesture recognition
+- Continuous left, right, up and down tracking
+- Forward and backward gestures
+- Smoothed movement to reduce jitter
+- Battery and hand-loss safety controls
+- Automatic hovering and landing
 
-## Current Features
+## Controls
 
-- Connects to a Tello over Wi-Fi
-- Reads and displays the battery level
-- Displays the live Tello camera feed
-- Detects 21 hand landmarks
-- Recognises gestures such as:
-  - Open palm
-  - Closed fist
-  - Thumbs up
-  - Thumbs down
-  - Victory sign
-  - Pointing up
-- Cleans up the video stream when the program closes
-- Preview-only gesture controller
-- Gesture hold confirmation to prevent accidental commands
-- Disarmed, armed and simulated flying states
-- Battery-checked takeoff, hover and automatic landing test
-- Safety landing if the flight program is interrupted
-- Gesture-controlled arming, takeoff and landing
-- Automatic landing when the hand disappears
-- Automatic 15-second flight limit
-- Keyboard-controlled safety landing
-- Open-palm position tracking
-- Preview-only left, right, up, down and hover controls
-- Direction confirmation bar to prevent accidental movement
-- Bounded gesture-controlled left and right movement
-- Centre-palm movement enablement
-- Automatic landing after one movement
+| Input | Action |
+|---|---|
+| Open palm ✋ | Control left, right, up and down |
+| Victory sign ✌️ | Move forward |
+| Closed fist ✊ | Move backward |
+| Open palm in centre | Hover/reset depth movement |
+| `L` or `Q` | Land |
+
+Forward and backward movement is limited to two seconds before requiring an open-palm reset.
 
 ## Technology
 
-- **Python 3.12**
-- **DJITelloPy**
-- **OpenCV**
-- **MediaPipe Gesture Recognizer**
-- **Git and GitHub**
-
-## Project Files
-
-- `connect_test.py` — tests the connection and reads the battery level
-- `camera_test.py` — displays the live camera stream
-- `gesture_test.py` — detects hands and recognises gestures
-- `requirements.txt` — lists the Python dependencies
-- `controller_preview.py` — safely previews gesture-controlled flight states without starting the motors
-- `flight_test.py` — performs a confirmed three-second takeoff, hover and landing test
-- `gesture_flight.py` — performs safety-confirmed gesture takeoff, hover and landing
-- `movement_preview.py` — previews movement directions using the position of an open palm
-- `gesture_movement_test.py` — performs one confirmed 20 cm gesture-controlled movement before landing
+- Python 3.12
+- OpenCV
+- MediaPipe
+- DJITelloPy
+- Ryze Tello SDK
 
 ## Installation
 
-Create and activate a Python virtual environment, then install the dependencies:
+Clone the project:
 
 ```bash
-python -m pip install -r requirements.txt
+git clone https://github.com/Aluinn/palmpilot.git
+cd palmpilot
 ```
 
-Download the MediaPipe gesture-recognition model into the project folder:
+Create and activate a virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Install the dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Download the MediaPipe gesture model:
 
 ```bash
 curl -L -o gesture_recognizer.task https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task
@@ -72,56 +62,51 @@ curl -L -o gesture_recognizer.task https://storage.googleapis.com/mediapipe-mode
 
 ## Running the Project
 
-1. Fully charge the Tello battery.
-2. Close the Tello mobile app.
-3. Disconnect the phone from the Tello.
-4. Switch on the Tello.
-5. Connect the computer to the `TELLO-XXXXXX` Wi-Fi network.
-6. Run one of the test programs:
+1. Charge the Tello and attach its propeller guards.
+2. Connect the computer to the `TELLO-` Wi-Fi network.
+3. Run:
 
 ```bash
-python connect_test.py
-python camera_test.py
-python gesture_test.py
+python palmpilot.py
 ```
 
-When using the camera or gesture test, click the video window and press **Q** to close it.
+4. Type `TAKEOFF` when prompted.
+5. Hold an open palm inside the yellow box to activate tracking.
 
 ## Safety
 
-The current version does **not** issue flight commands.
+- Takeoff requires at least 60% battery.
+- The drone lands when the battery reaches 50%.
+- Losing the hand causes immediate hovering.
+- The drone lands after 30 seconds without detecting a hand.
+- Forward and backward movement uses a reduced speed.
+- Press `L` or `Q` to land manually.
 
-Future flight controls will include:
+Always test indoors in a clear area with propeller guards attached.
 
-- Deliberate gesture confirmation
-- Battery checks
-- Command cooldowns
-- An immediate keyboard-controlled landing option
+## Project Tests
 
-Testing should only take place in a clear, safe flying area with propeller guards fitted.
+The repository includes separate programs for testing:
+
+- Drone connection
+- Camera streaming
+- Gesture recognition
+- Takeoff and landing
+- Movement previews
+- Gesture-controlled flight
 
 ## Roadmap
 
-- [x] Connect Python to the Tello
-- [x] Read the battery level
-- [x] Display the camera stream
-- [x] Detect hand landmarks
-- [x] Recognise hand gestures
-- [x] Add stable gesture confirmation
-- [x] Add a preview-only control mode
-- [x] Add arming and disarming
-- [x] Complete a controlled takeoff-and-landing test
-- [x] Connect confirmed gestures to takeoff and landing
-- [x] Add safe takeoff and landing controls
-- [x] Add hand-position movement
-- [x] Enable limited real movement 
-- [ ] Add an emergency keyboard landing command
-- [ ] Record a demonstration video
+- Gesture-controlled photographs
+- Flight data recording
+- Annotated video recording
+- Hand-distance following
+- Calibration and improved tracking
+- No-flight preview mode
 
-## Status
+## Acknowledgements
 
-**Work in progress:** Connection, camera streaming and hand-gesture recognition are working.
-
+Built using [DJITelloPy](https://github.com/damiafuentes/DJITelloPy), [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/vision/gesture_recognizer) and [OpenCV](https://opencv.org/).
 ## Demo of hand tracking
 
 
