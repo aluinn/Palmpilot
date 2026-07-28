@@ -107,10 +107,18 @@ The repository includes separate programs for testing:
 ## Acknowledgements
 
 Built using [DJITelloPy](https://github.com/damiafuentes/DJITelloPy), [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/vision/gesture_recognizer) and [OpenCV](https://opencv.org/).
-## Demo of hand tracking
+## Demonstration 
 
 
-https://github.com/user-attachments/assets/d05adb9c-1b01-4fe1-9f7b-dd9586b74169
+
+https://github.com/user-attachments/assets/5d2c14f0-d38a-4ebf-91dc-3201be7157b9
+
+
+
+
+
+
+
 
 
 
