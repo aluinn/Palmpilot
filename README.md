@@ -2,6 +2,9 @@
 
 PalmPilot is a Python computer-vision project that controls a Ryze Tello drone using hand gestures detected through its live camera.
 
+## Demonstration 
+https://github.com/user-attachments/assets/5d2c14f0-d38a-4ebf-91dc-3201be7157b9
+
 ## Features
 
 - Live Tello camera feed
@@ -107,11 +110,7 @@ The repository includes separate programs for testing:
 ## Acknowledgements
 
 Built using [DJITelloPy](https://github.com/damiafuentes/DJITelloPy), [MediaPipe](https://ai.google.dev/edge/mediapipe/solutions/vision/gesture_recognizer) and [OpenCV](https://opencv.org/).
-## Demonstration 
 
-
-
-https://github.com/user-attachments/assets/5d2c14f0-d38a-4ebf-91dc-3201be7157b9
 
 
 
